@@ -30,6 +30,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             return res.status(400).json({ message: err.message });
         }
 
+        // Only one file should be uploaded
+        // To prevent TypeScript error, check if files.file is an array
         const uploadedFile = Array.isArray(files.file) ? files.file[0] : files.file;
         if (!uploadedFile) {
             return res.status(400).json({ message: "No file uploaded." });
@@ -43,7 +45,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             return res.status(400).json({ message: "Invalid file type. Only .csv or .tsv allowed." });
         }
 
-        // Parse the input file and return appropriate status code
+        // Parse the input file and store data in database
         try {
             await parseData(uploadedFile.filepath, delimiter);
             res.status(200).json({ message: "File uploaded and data stored successfully." });
@@ -52,7 +54,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             if (error instanceof Error) {
                 res.status(500).json({ message: error.message });
             } else {
-                res.status(500).json({ message: "Error processing data" });
+                res.status(500).json({ message: "Unknown error" });
             }
         }
     })   
