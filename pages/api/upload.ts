@@ -24,6 +24,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         multiples: false 
     }); // TODO: include a file size limit?
 
+    // TODO: fields is not used, so replace with _?
     form.parse(req, async (err, fields, files) => {
         if (err) {
             return res.status(400).json({ message: err.message });
@@ -42,7 +43,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             return res.status(400).json({ message: "Invalid file type. Only .csv or .tsv allowed." });
         }
 
-        // Parse the file and return appropriate status code
+        // Parse the input file and return appropriate status code
         try {
             await parseData(uploadedFile.filepath, delimiter);
             res.status(200).json({ message: "File uploaded and data stored successfully." });
