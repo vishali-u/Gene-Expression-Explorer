@@ -1,8 +1,10 @@
-// File upload handler
+// File upload API
+
 import { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
 import fs from "fs";
 import path from "path";
+import { parseData } from "@/utils/parseData";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "POST") {
@@ -12,39 +14,45 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     // Create an upload directory
     const uploadDir = path.join(process.cwd(), "/uploads");
     if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true }); // Create it if not exists
+        fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    // Use formidable to allow file uploads
+    // Use formidable module for file uploads
     const form = new formidable.IncomingForm({
         uploadDir,
         keepExtensions: true,
         multiples: false 
-    }) // TODO: include a file size limit?
+    }); // TODO: include a file size limit?
 
-    form.parse(req, (err, fields, files) => {
+    form.parse(req, async (err, fields, files) => {
         if (err) {
-            return res.status(400).json({ message: err.message })
+            return res.status(400).json({ message: err.message });
         }
 
         const uploadedFile = Array.isArray(files.file) ? files.file[0] : files.file;
         if (!uploadedFile) {
-            return res.status(400).json({ message: "No file uploaded." })
+            return res.status(400).json({ message: "No file uploaded." });
         }
 
-        // Check file type (either .tsv or .csv)
+        // Only allow .csv or .tsv files
         const allowedMimeTypes = ["text/csv", "text/tab-separated-values"];
+        const delimiter = uploadedFile.mimetype === "text/csv" ? "," : "\t";
+
         if (!uploadedFile.mimetype || !allowedMimeTypes.includes(uploadedFile.mimetype)) {
             return res.status(400).json({ message: "Invalid file type. Only .csv or .tsv allowed." });
         }
 
-        // Get file name
-        const customFileName = fields.fileName ? fields.fileName[0] : uploadedFile.originalFilename;
-
-        // Successful upload
-        res.status(200).json({
-            message: "File uploaded successfully.",
-            filename: customFileName
-        })
+        // Parse the file and return appropriate status code
+        try {
+            await parseData(uploadedFile.filepath, delimiter);
+            res.status(200).json({ message: "File uploaded and data stored successfully." });
+        } catch (error) {
+            // To prevent TypeScript error
+            if (error instanceof Error) {
+                res.status(500).json({ message: error.message });
+            } else {
+                res.status(500).json({ message: "Error processing data" });
+            }
+        }
     })   
 }
