@@ -14,8 +14,7 @@ datasource db {
 }
 
 model dEGenes {
-  id          Int       @id @default(autoincrement())
-  symbol      String    @unique     // Gene name will be the primary key
+  symbol      String    @id     // Gene name will be the primary key
   logFC       Float
   logCPM      Float             
   F           Float

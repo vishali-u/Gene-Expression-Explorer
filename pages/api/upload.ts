@@ -6,22 +6,22 @@ import fs from "fs";
 import path from "path";
 import { parseData } from "@/utils/parseData";
 
+// Disable Next.js built-in parser for formidable to work
+export const config = {
+    api: {
+      bodyParser: false,
+    },
+};
+
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "POST") {
         return res.status(405).json({ message: "Method not allowed." });
     }
-
-    // Create an upload directory
-    const uploadDir = path.join(process.cwd(), "/uploads");
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    // Use formidable module for file uploads
-    const form = new formidable.IncomingForm({
-        uploadDir,
+    
+    // Parse the data in memory
+    const form = formidable({
         keepExtensions: true,
-        multiples: false 
+        multiples: false
     }); // TODO: include a file size limit?
 
     // TODO: fields is not used, so replace with _?
@@ -48,14 +48,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         // Parse the input file and store data in database
         try {
             await parseData(uploadedFile.filepath, delimiter);
-            res.status(200).json({ message: "File uploaded and data stored successfully." });
+            return res.status(200).json({ message: "File uploaded and data stored successfully." });
         } catch (error) {
-            // To prevent TypeScript error
-            if (error instanceof Error) {
-                res.status(500).json({ message: error.message });
-            } else {
-                res.status(500).json({ message: "Unknown error" });
-            }
+            // print the error that occurred in parseData
+            return res.status(500).json({ message: `Unexpected error: ${JSON.stringify(error)}` });
         }
     })   
 }
