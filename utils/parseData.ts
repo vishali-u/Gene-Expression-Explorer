@@ -26,7 +26,7 @@ export async function parseData(filePath: string, delimiter: string) {
             .on("end", async () => {
                 
                 try {
-                    // Ensure the database is empty before adding new file data
+                    // Ensure the database is empty before adding new data
                     await PRISMA.dEGenes.deleteMany({});
 
                     await PRISMA.dEGenes.createMany({
