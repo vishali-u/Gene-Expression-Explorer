@@ -35,13 +35,13 @@ export async function parseData(filePath: string, delimiter: string) {
                     
                     resolve("Data stored succesfully");
                 } catch(error) {
-                    console.error("Database Error:", error)
+                    //console.error("Database Error:", error)
                     reject(error)
                 }
             })
 
             .on("error", (error: Error) => {
-                console.error("File Reading Error:", error)
+                //console.error("File Reading Error:", error)
                 reject(error);
             })
     });

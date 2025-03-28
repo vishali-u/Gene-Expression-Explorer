@@ -12,7 +12,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const genes = await PRISMA.dEGenes.findMany();
         return res.status(200).json(genes);
     } catch (error) {
-        console.error("Error fetching genes:", error);
         return res.status(500).json({ message: "Error retrieving data." });
     }
 }
