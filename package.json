@@ -9,9 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
     "@prisma/client": "^6.5.0",
     "@prisma/studio": "^0.511.0",
     "csv-parser": "^3.2.0",
+    "dropzone": "^6.0.0-beta.2",
     "formidable": "^3.5.2",
     "lucide-react": "^0.485.0",
     "motion": "^12.6.2",
