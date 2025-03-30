@@ -1,16 +1,7 @@
 // Display differentially expressed genes in a table
 
 import { useState, useEffect, useMemo } from "react";
-
-// A gene interface  (to prevent type errors)
-interface Gene {
-    symbol: string,
-    logFC: number,
-    logCPM: number, 
-    F: number,
-    PValue: number,
-    FDR: number
-}
+import { Gene } from "@/utils/types"
 
 export default function DEGeneTable() {
     const [ allGenes, setAllGenes ] = useState<Gene[]>([]);
@@ -61,50 +52,56 @@ export default function DEGeneTable() {
     };
 
     return (
-        <div>
-            <h1>Differentially Expressed Genes</h1>
+        <div className="p-6 space-y-4">
+            <h1 className="text-2xl font-semibold text-black">Differentially Expressed Genes</h1>
+    
             {/* Search Bar */}
-            <input
-                id="gene-search"
-                type="text"
-                placeholder="Search gene symbol..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <br></br>
-
+            <div className="mb-4">
+                <input
+                    id="gene-search"
+                    type="text"
+                    placeholder="Search gene symbol..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full p-2 border border-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+            </div>
+    
             {/* Gene Table */}
-            <table id="de-gene-table">
-                <thead>
-                    <tr>
-                        <th>Symbol</th>
-                        <th>LogFC</th>
-                        <th>LogCPM</th>
-                        <th>F</th>
-                        <th>PValue</th>
-                        <th>FDR</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentGenes.map((gene) => (
-                        <tr key={gene.symbol}>
-                            <td>{gene.symbol}</td>
-                            <td>{gene.logFC}</td>
-                            <td>{gene.logCPM}</td> 
-                            <td>{gene.F}</td>
-                            <td>{gene.PValue}</td>
-                            <td>{gene.FDR}</td>
+            <div className="overflow-x-auto bg-white rounded-lg shadow-lg relative">
+                <table id="de-gene-table" className="min-w-full table-auto border-collapse">
+                    <thead>
+                        <tr className="bg-blue-100 text-black text-center">
+                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">Symbol</th>
+                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">LogFC</th>
+                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">LogCPM</th>
+                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">F</th>
+                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">PValue</th>
+                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">FDR</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            {/* Pagination Buttons */}
-            <div className="pagination-buttons">
+                    </thead>
+                    <tbody>
+                        {currentGenes.map((gene) => (
+                            <tr key={gene.symbol} className="hover:bg-blue-50 text-center">
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.symbol}</td>
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.logFC}</td>
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.logCPM}</td>
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.F}</td>
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.PValue}</td>
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.FDR}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+    
+            {/* Pagination Buttons outside the Table */}
+            <div className="flex justify-end space-x-2 mt-4">
                 <button
                     id="prev-page"
                     onClick={prevPage}
-                    disabled={currentPage===1}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md disabled:bg-blue-200 disabled:cursor-not-allowed"
                 >
                     Previous
                 </button>
@@ -112,10 +109,11 @@ export default function DEGeneTable() {
                     id="next-page"
                     onClick={nextPage}
                     disabled={currentPage >= Math.ceil(filteredGenes.length / genesPerPage)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md disabled:bg-blue-200 disabled:cursor-not-allowed"
                 >
                     Next
                 </button>
             </div>
         </div>
-    )
+    );
 }

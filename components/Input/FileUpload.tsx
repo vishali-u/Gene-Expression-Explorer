@@ -1,6 +1,6 @@
 // File upload components
 import { useState } from "react";
-import { UploadCloud, X } from "lucide-react";
+import { X } from "lucide-react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 export default function FileUpload() {
