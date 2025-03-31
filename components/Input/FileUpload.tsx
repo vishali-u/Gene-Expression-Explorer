@@ -1,9 +1,9 @@
 // File upload components
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
-export default function FileUpload() {
+export default function FileUpload({ onUpload }: { onUpload: () => void }) {
     const [isOpen, setIsOpen] = useState(false);
     const [ file, setFile ] = useState<File | null>(null);
     const [ message, setMessage ] = useState<string | null>(null);
@@ -39,6 +39,7 @@ export default function FileUpload() {
             const data = await response.json();
             setLoading(false);
             setMessage("File uploaded successfully!");
+            onUpload();
         } catch (error) {
             setLoading(false);
             setMessage("Error uploading file.")

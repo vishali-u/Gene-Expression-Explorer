@@ -8,7 +8,3 @@ export interface Gene {
     PValue: number;
     FDR: number;
 }
-
-export interface FileUploadProps {
-    onUploadSuccess: (genes: Gene[]) => void; 
-}

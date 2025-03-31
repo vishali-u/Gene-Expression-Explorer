@@ -3,48 +3,49 @@
 import { useState, useEffect, useMemo } from "react";
 import { Gene } from "@/utils/types"
 
-export default function DEGeneTable() {
+export default function DEGeneTable({ refreshData }: { refreshData: boolean }) {
     const [ allGenes, setAllGenes ] = useState<Gene[]>([]);
     const [ searchTerm, setSearchTerm ] = useState("");
     const [ currentPage, setCurrentPage ] = useState(1);
-    const genesPerPage = 10;
+    const genesPerPage = 17;
 
-    // fetch all DE genes
+    // Fetch all DE genes
     const fetchGenes = async() => {
-        const response = await fetch("/api/de-genes");
+        const response = await fetch("/api/de-genes", { cache: "no-store" });
         const data = await response.json();
         setAllGenes(data);
     };
 
     useEffect(() => {
         fetchGenes();
-    }, []);
+    }, [refreshData]);
+    
 
-    // allow users to search by gene symbol
+    // Filter genes (allow users to search by gene symbol)
     const filteredGenes = useMemo(() => {
         let filtered = allGenes
         if (searchTerm) {
             filtered = filtered.filter((gene) =>
-                gene.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+                gene.symbol.toLowerCase().startsWith(searchTerm.toLowerCase())
             );
         }
 
         return filtered; 
     }, [allGenes, searchTerm]);
 
-    // determine what genes to display based on page number
+    // Determine what genes to display based on page number
     const indexOfLastGene = currentPage * genesPerPage;
     const indexOfFirstGene = indexOfLastGene - genesPerPage;
     const currentGenes = filteredGenes.slice(indexOfFirstGene, indexOfLastGene);
 
-    // next page button click
+    // Next page button click
     const nextPage = () => {
         if (currentPage < Math.ceil(filteredGenes.length / genesPerPage)) {
             setCurrentPage(currentPage + 1);
         }
     };
 
-    // previous page button click
+    // Previous page button click
     const prevPage = () => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
@@ -95,7 +96,7 @@ export default function DEGeneTable() {
                 </table>
             </div>
     
-            {/* Pagination Buttons outside the Table */}
+            {/* Pagination Buttons */}
             <div className="flex justify-end space-x-2 mt-4">
                 <button
                     id="prev-page"
