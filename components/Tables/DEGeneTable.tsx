@@ -1,12 +1,15 @@
 // Display differentially expressed genes in a table
 
 import { useState, useEffect, useMemo } from "react";
-import { Gene } from "@/utils/types"
+import { Gene } from "@/utils/types";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 export default function DEGeneTable({ refreshData }: { refreshData: boolean }) {
     const [ allGenes, setAllGenes ] = useState<Gene[]>([]);
     const [ searchTerm, setSearchTerm ] = useState("");
     const [ currentPage, setCurrentPage ] = useState(1);
+    const [sortKey, setSortKey] = useState<keyof Gene | null>(null);
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
     const genesPerPage = 17;
 
     // Fetch all DE genes
@@ -21,17 +24,34 @@ export default function DEGeneTable({ refreshData }: { refreshData: boolean }) {
     }, [refreshData]);
     
 
-    // Filter genes (allow users to search by gene symbol)
+    // Filter and sort genes
+    // allow users to search by gene symbol (TODO: more filtering options?)
     const filteredGenes = useMemo(() => {
-        let filtered = allGenes
+        let filtered = allGenes;
         if (searchTerm) {
             filtered = filtered.filter((gene) =>
                 gene.symbol.toLowerCase().startsWith(searchTerm.toLowerCase())
             );
         }
+        
+        // Sorting 
+        if (sortKey) {
+            filtered.sort((a, b) => {
+                const valueA = a[sortKey];
+                const valueB = b[sortKey];
 
-        return filtered; 
-    }, [allGenes, searchTerm]);
+                const sortMultiplier = (sortOrder === "asc" ? 1 : -1);
+
+                if (typeof valueA === "string" && typeof valueB === "string") {
+                    return valueA.localeCompare(valueB) * sortMultiplier;
+                } else {
+                    return ((valueA as number) - (valueB as number)) * sortMultiplier;
+                }
+            });
+        }
+
+        return filtered;
+    }, [allGenes, searchTerm, sortKey, sortOrder]);
 
     // Determine what genes to display based on page number
     const indexOfLastGene = currentPage * genesPerPage;
@@ -52,11 +72,19 @@ export default function DEGeneTable({ refreshData }: { refreshData: boolean }) {
         }
     };
 
+    const handleSort = (column: keyof Gene) => {
+        if (sortKey === column) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+            setSortKey(column);
+            setSortOrder("asc");
+        }
+    };
+
     return (
         <div className="p-6 space-y-4">
             <h1 className="text-2xl font-semibold text-black">Differentially Expressed Genes</h1>
-    
-            {/* Search Bar */}
+
             <div className="mb-4">
                 <input
                     id="gene-search"
@@ -67,18 +95,27 @@ export default function DEGeneTable({ refreshData }: { refreshData: boolean }) {
                     className="w-full p-2 border border-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
             </div>
-    
-            {/* Gene Table */}
+
             <div className="overflow-x-auto bg-white rounded-lg shadow-lg relative">
                 <table id="de-gene-table" className="min-w-full table-auto border-collapse">
                     <thead>
                         <tr className="bg-blue-100 text-black text-center">
-                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">Symbol</th>
-                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">LogFC</th>
-                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">LogCPM</th>
-                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">F</th>
-                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">PValue</th>
-                            <th className="px-4 py-2 font-bold border-b border-r border-blue-300">FDR</th>
+                            {["symbol", "logFC", "logCPM", "F", "PValue", "FDR"].map((col) => (
+                                <th
+                                    key={col}
+                                    className="px-4 py-2 font-bold border-b border-r border-blue-300 cursor-pointer"
+                                    onClick={() => handleSort(col as keyof Gene)}
+                                >
+                                    <span className="mr-2">{col}</span>
+                                    <span className="text-gray-400 ml-2">
+                                        {sortKey === col ? (
+                                            sortOrder === "asc" ? "↑" : "↓"
+                                        ) : (
+                                            "↑↓"
+                                        )}
+                                    </span>
+                                </th>
+                            ))}
                         </tr>
                     </thead>
                     <tbody>
@@ -95,8 +132,7 @@ export default function DEGeneTable({ refreshData }: { refreshData: boolean }) {
                     </tbody>
                 </table>
             </div>
-    
-            {/* Pagination Buttons */}
+
             <div className="flex justify-end space-x-2 mt-4">
                 <button
                     id="prev-page"
