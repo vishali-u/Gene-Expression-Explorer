@@ -85,6 +85,7 @@ export default function FileUpload({ onUpload }: { onUpload: () => void }) {
                 <p className="text-gray-500">Drag & Drop or Click to Upload</p>
               )}
               <input
+                id="file-upload"
                 type="file"
                 accept=".csv, .tsv"
                 className="hidden"

@@ -2,27 +2,13 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { Gene } from "@/utils/types";
-import { ChevronUp, ChevronDown } from "lucide-react";
 
-export default function DEGeneTable({ refreshData }: { refreshData: boolean }) {
-    const [ allGenes, setAllGenes ] = useState<Gene[]>([]);
+export default function DEGeneTable({ allGenes }: { allGenes: Gene[] }) {
     const [ searchTerm, setSearchTerm ] = useState("");
     const [ currentPage, setCurrentPage ] = useState(1);
     const [sortKey, setSortKey] = useState<keyof Gene | null>(null);
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
     const genesPerPage = 17;
-
-    // Fetch all DE genes
-    const fetchGenes = async() => {
-        const response = await fetch("/api/de-genes", { cache: "no-store" });
-        const data = await response.json();
-        setAllGenes(data);
-    };
-
-    useEffect(() => {
-        fetchGenes();
-    }, [refreshData]);
-    
 
     // Filter and sort genes
     // allow users to search by gene symbol (TODO: more filtering options?)
