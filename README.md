@@ -21,8 +21,8 @@ Make sure you have the following installed:
 
 1. Clone the repository
 ```
-git clone https://github.com/yourusername/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/vishali-u/Gene-Expression-Explorer
+cd Gene-Expression-Explorer
 ```
 
 2. Run the development server:
