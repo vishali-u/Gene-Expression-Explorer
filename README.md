@@ -1,6 +1,6 @@
 ## Explore Differential Gene Expression
 This web application is designed to visualize differential gene expression data uploaded in .csv or .tsv format by the user. It provides two main views:
-* Table View: Displays differentially expressed genes in a user-friendly, interactive table. Supports filtering by gene name and sorting by columns
+* Table View: Displays differentially expressed genes in an interactive table. Supports filtering by gene name and sorting by columns
 * Plot View: Displays differentially expressed genes in an interactive volcano plot.
 
 ## Technologies Used:
