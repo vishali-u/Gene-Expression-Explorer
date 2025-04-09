@@ -2,7 +2,7 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
-import { parseData } from "@/utils/parseData";
+import { parseData } from "@/utils/uploadUtils";
 
 // Disable Next.js built-in parser for formidable to work
 export const config = {

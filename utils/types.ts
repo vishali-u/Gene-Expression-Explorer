@@ -11,5 +11,6 @@ export interface DataPoint {
     symbol: string, 
     negLogPVal: number,
     logFC: number,
-    color: string
+    color: string,
+    description: string
 }
