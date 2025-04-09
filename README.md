@@ -3,6 +3,10 @@ This web application is designed to visualize differential gene expression data 
 * Table View: Displays differentially expressed genes in an interactive table. Supports filtering by gene name and sorting by columns
 * Plot View: Displays differentially expressed genes in an interactive volcano plot.
 
+## Data
+Input data is expected in .csv or .tsv format. Columns required are GeneName, logFC, F, PValue, and FDR. \
+An example dataset is available here: [example_data](https://drive.google.com/file/d/1DJCb1oo0HBwpzwLZsNSoXH0uH8OBQtFu/view?usp=drive_link)
+
 ## Technologies Used:
 * Next.js
 * React
