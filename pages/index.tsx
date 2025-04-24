@@ -73,7 +73,7 @@ export default function Home() {
                 </div>
             )}
 
-            {/* Floating Button */}
+            {/* Floating Plot/Table Button */}
             <button
                 onClick={() => setView(view === "table" ? "plot" : "table")}
                 className="fixed bottom-6 left-6 flex items-center gap-2 bg-blue-600 p-6 text-white shadow-lg transition-all duration-300 rounded-full hover:px-6"
@@ -83,7 +83,7 @@ export default function Home() {
                 </span>
             </button>
 
-            {/* Display either the DEGeneTable or VolcanoPlot */}
+            {/* Display */}
             {view === "table" ? (
                 <DEGeneTable allGenes={allGenes} />
             ) : (
