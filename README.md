@@ -16,25 +16,24 @@ An example dataset is available here: [example_data](https://drive.google.com/fi
 
 ## Getting Started
 Make sure you have the following installed:
-* Node.js
-* npm
+* Docker
 
-1. Clone the repository
+1. Clone the repository:
 ```
 git clone https://github.com/vishali-u/Gene-Expression-Explorer
 cd Gene-Expression-Explorer
 ```
 
-2. Run the development server:
+2. Build the Docker image:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker build -t gene-expression-explorer .
+```
+
+2. Run the Docker container:
+
+```bash
+docker run -p 3000:3000 gene-expression-explorer
 ```
 
 3. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
