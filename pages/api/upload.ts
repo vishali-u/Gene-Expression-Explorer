@@ -2,7 +2,7 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
-import { parseData } from "@/utils/uploadUtils";
+import { parseDEData } from "@/utils/uploadUtils";
 
 // Disable Next.js built-in parser for formidable to work
 export const config = {
@@ -44,7 +44,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
         // Parse the input file and store data in database
         try {
-            await parseData(uploadedFile.filepath, delimiter);
+            await parseDEData(uploadedFile.filepath, delimiter);
             return res.status(200).json({ message: "File uploaded and data stored successfully." });
         } catch (error) {
             // print the error that occurred in parseData
