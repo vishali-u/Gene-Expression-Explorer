@@ -4,7 +4,9 @@ import fs from "fs";
 import csvParser from "csv-parser";
 import { PRISMA } from "@/utils/constants"
 
-export async function parseData(filePath: string, delimiter: string) {
+// Function to parse the differential expression data and store it in the 
+// database. Takes the file path and delimiter as arguments.
+export async function parseDEData(filePath: string, delimiter: string) {
     return new Promise((resolve, reject) => {
         const parsed: any[] = [] // Collect the parsed data (row by row)
 
