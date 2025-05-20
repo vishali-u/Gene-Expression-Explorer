@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Gene } from "@/utils/types";
+import { DEGene } from "@/utils/types";
 import FileUpload from "@/components/Input/FileUpload";
 import DEGeneTable from "@/components/Tables/DEGeneTable";
 //import VolcanoPlot from "@/components/Plots/VolcanoPlot";
@@ -11,7 +11,7 @@ const VolcanoPlot = dynamic(() => import("@/components/Plots/VolcanoPlot"), {
 });
 
 export default function Home() {
-    const [ allGenes, setAllGenes ] = useState<Gene []>([]);
+    const [ allGenes, setAllGenes ] = useState<DEGene []>([]);
     const [ refreshData, setRefreshData ] = useState(false);
     const [ view, setView ] = useState<"table" | "plot">("table");
     const [ FCThreshold, setFcThreshold ] = useState(0.5);

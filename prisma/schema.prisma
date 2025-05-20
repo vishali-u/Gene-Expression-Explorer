@@ -14,10 +14,11 @@ datasource db {
 }
 
 model dEGenes {
-  symbol      String    @id     // Gene name will be the primary key
-  logFC       Float
-  logCPM      Float             
-  F           Float
-  PValue      Float
-  FDR         Float
+  Symbol         String    @id     // Gene name will be the primary key
+  BaseMean       Float
+  Log2FC         Float             
+  SELog2FC       Float
+  TestStat       Float
+  PValue         Float
+  PAdj           Float
 }

@@ -1,55 +1,65 @@
-// File upload components
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 export default function FileUpload({ onUpload }: { onUpload: () => void }) {
-    const [isOpen, setIsOpen] = useState(false);
-    const [ file, setFile ] = useState<File | null>(null);
-    const [ message, setMessage ] = useState<string | null>(null);
-    const [ loading, setLoading ] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [countsFile, setCountsFile] = useState<File | null>(null);
+  const [metadataFile, setMetadataFile] = useState<File | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-    // File change handler
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setMessage(null);
-        if (event.target.files && event.target.files.length > 0) {
-            setFile(event.target.files[0]);
-        }
+  const [baseline, setBaseline] = useState("");
+  const [experimental, setExperimental] = useState("");
+  const [minNumSamples, setMinNumSamples] = useState("3");
+  const [minCounts, setMinCounts] = useState("10");
+  const [adjustMethod, setAdjustMethod] = useState("BH");
+  //const [alphaThreshold, setAlphaThreshold] = useState("0.05");
+  //const [logFCThreshold, setLogFCThreshold] = useState("1");
+
+  const handleCountsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) setCountsFile(e.target.files[0]);
+  };
+
+  const handleMetadataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) setMetadataFile(e.target.files[0]);
+  };
+
+  const handleFileUpload = async () => {
+    if (!countsFile || !metadataFile) {
+      setMessage("Please upload both counts and metadata files.");
+      return;
     }
 
-    // File upload handler
-    const handleFileUpload = async () => {
-        if (!file) {
-            setMessage("Please upload a file.");
-            return;
-        }
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("counts", countsFile);
+    formData.append("metadata", metadataFile);
+    formData.append("baseline", baseline);
+    formData.append("experimental", experimental);
+    formData.append("minNumSamples", minNumSamples);
+    formData.append("minCounts", minCounts);
+    formData.append("adjustMethod", adjustMethod);
+    //formData.append("alphaThreshold", alphaThreshold);
+    //formData.append("logFCThreshold", logFCThreshold);
 
-        setLoading(true);
-        
-        const formData = new FormData();
-        formData.append("file", file!);
-
-        try {
-            const response = await fetch("/api/upload", {
-                method: "POST", 
-                body: formData
-            });
-
-            // use the message returned by the API
-            const data = await response.json();
-            setLoading(false);
-            setMessage("File uploaded successfully!");
-            onUpload();
-        } catch (error) {
-            setLoading(false);
-            setMessage("Error uploading file.")
-        }
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      setLoading(false);
+      setMessage(data.message);
+      onUpload();
+    } catch (error) {
+      setLoading(false);
+      setMessage("Upload failed.");
     }
+  };
 
-    // display
-    return (
+  return (
     <div className="fixed bottom-4 right-4 z-50">
-      {/* Floating Upload Button */}
       <button
         onClick={() => setIsOpen(true)}
         className="group fixed bottom-6 right-6 flex items-center gap-2 bg-blue-600 p-6 text-white shadow-lg transition-all duration-300 rounded-full hover:px-6"
@@ -60,50 +70,113 @@ export default function FileUpload({ onUpload }: { onUpload: () => void }) {
         </span>
       </button>
 
-      {/* File Upload Box */}
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-96">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold">Upload Your Dataset</h2>
+          <div className="bg-white p-6 rounded-lg shadow-xl w-[30rem] max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Upload RNA-seq Data</h2>
               <button onClick={() => setIsOpen(false)}>
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Drop Zone (Clickable Label for File Input) */}
-            <label
-              className="mt-4 border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer block hover:border-blue-500"
-            >
-              {file ? (
-                <p className="text-gray-700">
-                    {file.name}
-                    <br />
-                    <span className="italic text-xs">(Click to change file.)</span>
-                </p>
-              ) : (
-                <p className="text-gray-500">Drag & Drop or Click to Upload</p>
-              )}
+            {/* File Inputs */}
+            <div className="mb-4">
+              <label className="block font-medium mb-1">Counts File</label>
               <input
-                id="file-upload"
                 type="file"
-                accept=".csv, .tsv"
-                className="hidden"
-                onChange={handleFileChange}
+                accept=".csv,.tsv"
+                onChange={handleCountsChange}
               />
-            </label>
+            </div>
 
-            {/* Upload Button */}
+            <div className="mb-4">
+              <label className="block font-medium mb-1">Metadata File</label>
+              <input
+                type="file"
+                accept=".csv,.tsv"
+                onChange={handleMetadataChange}
+              />
+            </div>
+
+            {/* Parameter Fields */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium">Baseline Group</label>
+                <input
+                  type="text"
+                  value={baseline}
+                  onChange={(e) => setBaseline(e.target.value)}
+                  className="w-full border rounded p-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Experimental Group</label>
+                <input
+                  type="text"
+                  value={experimental}
+                  onChange={(e) => setExperimental(e.target.value)}
+                  className="w-full border rounded p-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Min Samples</label>
+                <input
+                  type="number"
+                  value={minNumSamples}
+                  onChange={(e) => setMinNumSamples(e.target.value)}
+                  className="w-full border rounded p-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Min Counts</label>
+                <input
+                  type="number"
+                  value={minCounts}
+                  onChange={(e) => setMinCounts(e.target.value)}
+                  className="w-full border rounded p-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Adjust Method</label>
+                <input
+                  type="text"
+                  value={adjustMethod}
+                  onChange={(e) => setAdjustMethod(e.target.value)}
+                  className="w-full border rounded p-1"
+                />
+              </div>
+              {/*<div>
+                <label className="block text-sm font-medium">Alpha Threshold</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={alphaThreshold}
+                  onChange={(e) => setAlphaThreshold(e.target.value)}
+                  className="w-full border rounded p-1"
+                />
+              </div>*/}
+              {/*<div>
+                <label className="block text-sm font-medium">logFC Threshold</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={logFCThreshold}
+                  onChange={(e) => setLogFCThreshold(e.target.value)}
+                  className="w-full border rounded p-1"
+                />
+              </div>*/}
+            </div>
+
             <button
               onClick={handleFileUpload}
-              className="w-full mt-4 bg-blue-600 text-white p-2 rounded-lg"
+              className="w-full bg-blue-600 text-white p-2 rounded-lg"
               disabled={loading}
             >
-              {loading ? "Uploading..." : "Upload"}
+              {loading ? "Uploading..." : "Run DESeq2"}
             </button>
 
-            {/* Upload Message */}
-            {message && <p className="mt-2 text-sm text-gray-600">{message}</p>}
+            {message && <p className="mt-3 text-sm text-gray-700">{message}</p>}
           </div>
         </div>
       )}
