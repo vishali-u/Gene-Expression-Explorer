@@ -6,21 +6,22 @@ import { PRISMA } from "@/utils/constants"
 
 // Function to parse the differential expression data and store it in the 
 // database. Takes the file path and delimiter as arguments.
-export async function parseDEData(filePath: string, delimiter: string) {
+export async function parseDEData(filePath: string) {
     return new Promise((resolve, reject) => {
         const parsed: any[] = [] // Collect the parsed data (row by row)
 
         // Reading in the file
         fs.createReadStream(filePath)
-            .pipe(csvParser({ separator: delimiter }))
+            .pipe(csvParser({ separator: "," }))
             .on("data", (row) => {
                 parsed.push({
-                    symbol: row.GeneName,
-                    logFC: parseFloat(row.logFC),
-                    logCPM: parseFloat(row.logCPM),
-                    F: parseFloat(row.F),
-                    PValue: parseFloat(row.PValue),
-                    FDR: parseFloat(row.FDR)
+                    Symbol: row.gene,
+                    BaseMean: parseFloat(row.baseMean),
+                    Log2FC: parseFloat(row.log2FoldChange),
+                    SELog2FC: parseFloat(row.lfcSE),
+                    TestStat: parseFloat(row.stat),
+                    PValue: parseFloat(row.pvalue),
+                    PAdj: parseFloat(row.padj)
                 });
             })
 
