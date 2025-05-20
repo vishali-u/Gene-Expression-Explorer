@@ -1,9 +1,9 @@
 import Plot from "react-plotly.js";
 import prepareDataPoints from "@/utils/volcanoPlotUtils";
-import { Gene } from "@/utils/types";
+import { DEGene } from "@/utils/types";
 import { Layout, PlotData } from "plotly.js";
 
-export default function VolcanoPlot({ genes, thresholds }: { genes: Gene[], 
+export default function VolcanoPlot({ genes, thresholds }: { genes: DEGene[], 
     thresholds: { FCThreshold: number, sigThreshold: number } }) {
 
     const { FCThreshold, sigThreshold } = thresholds;

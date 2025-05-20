@@ -20,9 +20,11 @@
     "next": "15.2.3",
     "plotly.js": "^3.0.1",
     "prisma": "^6.5.0",
+    "r-integration": "^2.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-plotly.js": "^2.6.0"
+    "react-plotly.js": "^2.6.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/formidable": "^3.4.5",

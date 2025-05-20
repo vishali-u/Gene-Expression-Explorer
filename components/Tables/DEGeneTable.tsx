@@ -1,12 +1,12 @@
 // Display differentially expressed genes in a table
 
 import { useState, useEffect, useMemo } from "react";
-import { Gene } from "@/utils/types";
+import { DEGene } from "@/utils/types";
 
-export default function DEGeneTable({ allGenes }: { allGenes: Gene[] }) {
+export default function DEGeneTable({ allGenes }: { allGenes: DEGene[] }) {
     const [ searchTerm, setSearchTerm ] = useState("");
     const [ currentPage, setCurrentPage ] = useState(1);
-    const [sortKey, setSortKey] = useState<keyof Gene | null>(null);
+    const [sortKey, setSortKey] = useState<keyof DEGene | null>(null);
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
     const genesPerPage = 17;
 
@@ -16,7 +16,7 @@ export default function DEGeneTable({ allGenes }: { allGenes: Gene[] }) {
         let filtered = allGenes;
         if (searchTerm) {
             filtered = filtered.filter((gene) =>
-                gene.symbol.toLowerCase().startsWith(searchTerm.toLowerCase())
+                gene.Symbol.toLowerCase().startsWith(searchTerm.toLowerCase())
             );
         }
         
@@ -58,7 +58,7 @@ export default function DEGeneTable({ allGenes }: { allGenes: Gene[] }) {
         }
     };
 
-    const handleSort = (column: keyof Gene) => {
+    const handleSort = (column: keyof DEGene) => {
         if (sortKey === column) {
             setSortOrder(sortOrder === "asc" ? "desc" : "asc");
         } else {
@@ -86,11 +86,11 @@ export default function DEGeneTable({ allGenes }: { allGenes: Gene[] }) {
                 <table id="de-gene-table" className="min-w-full table-auto border-collapse">
                     <thead>
                         <tr className="bg-blue-100 text-black text-center">
-                            {["symbol", "logFC", "logCPM", "F", "PValue", "FDR"].map((col) => (
+                            {["Symbol", "BaseMean", "Log2FC", "SELog2FC", "TestStat", "PValue", "PAdj"].map((col) => (
                                 <th
                                     key={col}
                                     className="px-4 py-2 font-bold border-b border-r border-blue-300 cursor-pointer"
-                                    onClick={() => handleSort(col as keyof Gene)}
+                                    onClick={() => handleSort(col as keyof DEGene)}
                                 >
                                     <span className="mr-2">{col}</span>
                                     <span className="text-gray-400 ml-2">
@@ -106,13 +106,14 @@ export default function DEGeneTable({ allGenes }: { allGenes: Gene[] }) {
                     </thead>
                     <tbody>
                         {currentGenes.map((gene) => (
-                            <tr key={gene.symbol} className="hover:bg-blue-50 text-center">
-                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.symbol}</td>
-                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.logFC}</td>
-                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.logCPM}</td>
-                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.F}</td>
+                            <tr key={gene.Symbol} className="hover:bg-blue-50 text-center">
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.Symbol}</td>
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.BaseMean}</td>
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.Log2FC}</td>
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.SELog2FC}</td>
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.TestStat}</td>
                                 <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.PValue}</td>
-                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.FDR}</td>
+                                <td className="px-4 py-2 text-black border-b border-r border-blue-200">{gene.PAdj}</td>
                             </tr>
                         ))}
                     </tbody>
