@@ -19,7 +19,7 @@ export const config = {
 // Helper function to create a per-user workspace directory
 export function createUserWorkspace() {
     const id = uuidv4();
-    const dir = path.join(process.cwd(), "data", "workspaces", id);
+    const dir = path.join(process.cwd(), "output", "workspaces", id);
     fs.mkdirSync(dir, { recursive: true });
     return { id, dir };
 }

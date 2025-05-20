@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { DEGene } from "@/utils/types";
 import FileUpload from "@/components/Input/FileUpload";
+import exampleGenes from "@/utils/example_genes.json";
 import DEGeneTable from "@/components/Tables/DEGeneTable";
 //import VolcanoPlot from "@/components/Plots/VolcanoPlot";
 import dynamic from "next/dynamic";
@@ -21,7 +22,21 @@ export default function Home() {
     const fetchGenes = async() => {
         const response = await fetch("/api/de-genes");
         const data = await response.json();
-        setAllGenes(data);
+        if (data.length > 0) {
+            setAllGenes(data);
+        } else {
+            setAllGenes(
+                exampleGenes.map(gene => ({
+                    Symbol: gene.Symbol,
+                    BaseMean: Number(gene.BaseMean),
+                    Log2FC: Number(gene.Log2FC),
+                    SELog2FC: Number(gene.SELog2FC),
+                    TestStat: Number(gene.TestStat),
+                    PValue: Number(gene.PValue),
+                    PAdj: Number(gene.PAdj),
+                }))
+            );
+        }
     };
 
     useEffect(() => {
