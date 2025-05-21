@@ -8,8 +8,7 @@ This web application is designed to visualize differential gene expression data 
 
 
 ## Data
-Input data is expected in .csv or .tsv format. Columns required are GeneName, logFC, F, PValue, and FDR. \
-An example dataset is available here: [example_data](https://drive.google.com/file/d/1DJCb1oo0HBwpzwLZsNSoXH0uH8OBQtFu/view?usp=drive_link)
+Counts data and metadata are expected in .csv or .tsv format.
 
 ## Technologies Used:
 * Next.js
