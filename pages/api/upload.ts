@@ -7,7 +7,6 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { parseDEData } from "@/utils/uploadUtils";
 import { runDESeq2 } from "@/utils/deseqUtils";
-import { output } from "motion/react-client";
 
 // Disable Next.js built-in parser for formidable to work
 export const config = {
@@ -56,14 +55,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             return res.status(400).json({ 
                 message: "Both counts and metadata files are required." });
         }
-
-        console.log("files:", files);
-        console.log("countsFile:", countsFile.filepath);
-        console.log("metadataFile:", metadataFile.filepath);
-
-        console.log('countsFile.filepath type:', typeof countsFile.filepath);
-        console.log('metadataFile.filepath type:', typeof metadataFile.filepath);
-
 
         // Only allow .csv or .tsv files
         const allowedMimeTypes = ["text/csv", "text/tab-separated-values"];
