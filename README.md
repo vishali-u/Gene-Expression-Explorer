@@ -17,9 +17,6 @@ Counts data and metadata are expected in .csv or .tsv format.
 * SQLite
 * Tailwind CSS
 
-## Access the app via Vercel
-To view the app with the example data loaded in: https://gene-expression-explorer-y5f8.vercel.app/
-
 ## Access the app via Docker
 Make sure you have the following installed:
 * Docker
