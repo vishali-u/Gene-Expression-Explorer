@@ -14,8 +14,9 @@ Counts data and metadata are expected in .csv or .tsv format.
 * Next.js
 * React
 * Plotly
-* SQLite
+* PostgreSQL
 * Tailwind CSS
+* R-integration
 
 ## Access the app via Docker
 Make sure you have the following installed:
