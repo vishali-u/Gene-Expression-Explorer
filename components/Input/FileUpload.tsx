@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -6,24 +6,34 @@ export default function FileUpload({ onUpload }: { onUpload: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [countsFile, setCountsFile] = useState<File | null>(null);
   const [metadataFile, setMetadataFile] = useState<File | null>(null);
+  const [countsFileName, setCountsFileName] = useState("");
+  const [metadataFileName, setMetadataFileName] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const [baseline, setBaseline] = useState("");
   const [experimental, setExperimental] = useState("");
+  const [conditions, setConditions] = useState<string[]>([]);
   const [minNumSamples, setMinNumSamples] = useState("3");
   const [minCounts, setMinCounts] = useState("10");
   const [adjustMethod, setAdjustMethod] = useState("BH");
-  //const [alphaThreshold, setAlphaThreshold] = useState("0.05");
-  //const [logFCThreshold, setLogFCThreshold] = useState("1");
+  const [alphaThreshold, setAlphaThreshold] = useState("0.05");
+  const [logFCThreshold, setLogFCThreshold] = useState("0");
 
   const handleCountsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) setCountsFile(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      setCountsFile(e.target.files[0]);
+      setCountsFileName(e.target.files[0].name);
+    }
   };
 
   const handleMetadataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) setMetadataFile(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      setMetadataFile(e.target.files[0]);
+      setMetadataFileName(e.target.files[0].name);
+    }
   };
+
 
   const handleFileUpload = async () => {
     if (!countsFile || !metadataFile) {
@@ -32,6 +42,8 @@ export default function FileUpload({ onUpload }: { onUpload: () => void }) {
     }
 
     setLoading(true);
+    setMessage("Running DESeq2 analysis...");
+
     const formData = new FormData();
     formData.append("counts", countsFile);
     formData.append("metadata", metadataFile);
@@ -40,23 +52,41 @@ export default function FileUpload({ onUpload }: { onUpload: () => void }) {
     formData.append("minNumSamples", minNumSamples);
     formData.append("minCounts", minCounts);
     formData.append("adjustMethod", adjustMethod);
-    //formData.append("alphaThreshold", alphaThreshold);
-    //formData.append("logFCThreshold", logFCThreshold);
+    formData.append("alphaThreshold", alphaThreshold);
+    formData.append("logFCThreshold", logFCThreshold);
 
     try {
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
+
       const data = await response.json();
-      setLoading(false);
+
       setMessage(data.message);
+      setLoading(false);
       onUpload();
     } catch (error) {
       setLoading(false);
       setMessage("Upload failed.");
     }
   };
+
+  // Fetch conditions from the API when the component mounts
+  useEffect(() => {
+    const fetchConditions = async () => {
+      try {
+        const response = await fetch("/api/metadata");
+        const data = await response.json();
+        setConditions(data.conditions);
+      } catch (err) {
+        console.error("Failed to fetch conditions", err);
+      }
+    };
+
+    fetchConditions();
+  }, []);
+
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
@@ -75,7 +105,10 @@ export default function FileUpload({ onUpload }: { onUpload: () => void }) {
           <div className="bg-white p-6 rounded-lg shadow-xl w-[30rem] max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Upload RNA-seq Data</h2>
-              <button onClick={() => setIsOpen(false)}>
+              <button onClick={() => {
+                setIsOpen(false);
+                setMessage(null); // clear message
+              }}>
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -88,6 +121,9 @@ export default function FileUpload({ onUpload }: { onUpload: () => void }) {
                 accept=".csv,.tsv"
                 onChange={handleCountsChange}
               />
+              {countsFileName && (
+                <p className="text-sm text-gray-600 mt-1">Selected: {countsFileName}</p>
+              )}
             </div>
 
             <div className="mb-4">
@@ -97,27 +133,46 @@ export default function FileUpload({ onUpload }: { onUpload: () => void }) {
                 accept=".csv,.tsv"
                 onChange={handleMetadataChange}
               />
+              {metadataFileName && (
+                <p className="text-sm text-gray-600 mt-1">Selected: {metadataFileName}</p>
+              )}
             </div>
 
             {/* Parameter Fields */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium">Baseline Group</label>
-                <input
-                  type="text"
+                <select
                   value={baseline}
                   onChange={(e) => setBaseline(e.target.value)}
                   className="w-full border rounded p-1"
-                />
+                >
+                  <option value="">Select...</option>
+                  {conditions
+                    .filter((cond) => cond != experimental)
+                    .map((cond) => (
+                    <option key={cond} value={cond}>
+                      {cond}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium">Experimental Group</label>
-                <input
-                  type="text"
+                <select
                   value={experimental}
                   onChange={(e) => setExperimental(e.target.value)}
                   className="w-full border rounded p-1"
-                />
+                >
+                  <option value="">Select...</option>
+                  {conditions
+                    .filter((cond) => cond != baseline)
+                    .map((cond) => (
+                    <option key={cond} value={cond}>
+                      {cond}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium">Min Samples</label>
@@ -146,7 +201,7 @@ export default function FileUpload({ onUpload }: { onUpload: () => void }) {
                   className="w-full border rounded p-1"
                 />
               </div>
-              {/*<div>
+              <div>
                 <label className="block text-sm font-medium">Alpha Threshold</label>
                 <input
                   type="number"
@@ -155,8 +210,8 @@ export default function FileUpload({ onUpload }: { onUpload: () => void }) {
                   onChange={(e) => setAlphaThreshold(e.target.value)}
                   className="w-full border rounded p-1"
                 />
-              </div>*/}
-              {/*<div>
+              </div>
+              <div>
                 <label className="block text-sm font-medium">logFC Threshold</label>
                 <input
                   type="number"
@@ -165,7 +220,7 @@ export default function FileUpload({ onUpload }: { onUpload: () => void }) {
                   onChange={(e) => setLogFCThreshold(e.target.value)}
                   className="w-full border rounded p-1"
                 />
-              </div>*/}
+              </div>
             </div>
 
             <button

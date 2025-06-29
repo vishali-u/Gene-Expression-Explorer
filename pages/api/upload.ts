@@ -3,10 +3,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
 import fs from "fs";
-import path from "path";
+import path, { parse } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { parseDEData } from "@/utils/uploadUtils";
-import { runDESeq2 } from "@/utils/deseqUtils";
+import { parseMetadata, parseDEData } from "@/utils/uploadUtils";
+import { runDESeq2 } from "@/utils/deSeqUtils";
+import { m } from "motion/react";
+import { meta } from "plotly.js/lib/scatter";
 
 // Disable Next.js built-in parser for formidable to work
 export const config = {
@@ -41,7 +43,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         multiples: false
     }); // TODO: include a file size limit?
 
-    // TODO: fields is not used, so replace with _?
     form.parse(req, async (err, fields, files) => {
         if (err) {
             return res.status(400).json({ message: err.message });
@@ -66,12 +67,25 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
                 message: "Invalid file type. Only .csv or .tsv allowed." });
         }
 
+        // Infer delimiter based on MIME type
+        let delimiter = ",";
+        if (metadataType === "text/tab-separated-values") {
+            delimiter = "\t";
+        } else if (metadataType === "text/csv") {
+            delimiter = ",";
+        } 
+
         // Parse the input file and store data in database
         try {
             // Create a user workspace
             const { id, dir } = createUserWorkspace();
+            console.log("Workspace created:", dir);
+
+            // Store the metadata 
+            await parseMetadata(metadataFile.filepath, delimiter);  
 
             // Run the DESeq2 pipeline
+            console.log("Running DESeq2 with parameters...");
             const params = {
                 countsPath: countsFile.filepath,
                 metadataPath: metadataFile.filepath,
@@ -84,12 +98,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
                 logFCThreshold: parseFloat(getStringField(fields.logFCThreshold)),
                 outputDir: dir
             };
-            runDESeq2(params);
+            await runDESeq2(params);
 
             // Parse the differential expression data and store it in the database
             const resultsFile = path.join(dir, "de_results.csv");
             await parseDEData(resultsFile);
-            return res.status(200).json({ message: "Files uploaded and parsed successfully." });
+            return res.status(200).json({ message: "Analysis completed successfully." });
         } catch (error: any) {
             // print the error that occurred in parseData
             return res.status(500).json({
@@ -99,4 +113,3 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         }
     })   
 }
-

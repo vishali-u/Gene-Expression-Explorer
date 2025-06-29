@@ -5,7 +5,6 @@ suppressMessages(library(DESeq2))
 suppressMessages(library(dplyr))
 suppressMessages(library(tidyverse))
 
-
 ######## Function ######## 
 runDGE <- function(countsPath,
                    metadataPath,

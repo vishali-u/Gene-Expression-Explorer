@@ -22,3 +22,9 @@ model dEGenes {
   PValue         Float
   PAdj           Float
 }
+
+model metadata {
+  id             Int      @id @default(autoincrement())
+  SampleName     String   @unique
+  Condition      String
+}

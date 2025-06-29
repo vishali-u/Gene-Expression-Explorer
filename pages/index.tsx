@@ -17,6 +17,7 @@ export default function Home() {
     const [ view, setView ] = useState<"table" | "plot">("table");
     const [ FCThreshold, setFcThreshold ] = useState(0.5);
     const [ sigThreshold, setSigThreshold ] = useState(0.05);
+    const [showWelcome, setShowWelcome] = useState(true);
 
     // Fetch all DE genes
     const fetchGenes = async() => {
@@ -53,7 +54,7 @@ export default function Home() {
         <div className="container mx-auto p-8">
             <FileUpload onUpload={handleFileUploaded} />
 
-            {/* Threshold Input Section */}
+            {/* Threshold Input Section (move to volcano plot component) */}
             {view === "plot" && (
                 <div className="mb-4">
                     <div className="flex items-center mb-2">
@@ -97,6 +98,23 @@ export default function Home() {
                     {view === "table" ? "Plot" : "Table"}
                 </span>
             </button>
+
+            {/* Floating welcome/help button */}
+            {/*<div className="fixed top-4 left-4 z-50">
+            <button
+                onClick={() => setShowWelcome(true)}
+                className="group fixed top-6 left-6 flex items-center gap-2 bg-blue-600 p-6 text-white shadow-lg transition-all duration-300 rounded-full hover:px-6"
+            >
+                <i className="fa fa-info-circle fa-3x"></i>
+                <span className="text-2xl font-semibold ml-2 hidden group-hover:block">
+                Help
+                </span>
+            </button>
+            </div>
+            */}
+
+
+
 
             {/* Display */}
             {view === "table" ? (
